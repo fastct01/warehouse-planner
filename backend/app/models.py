@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Float, DateTime, ForeignKey, JSON
+from sqlalchemy import Column, Integer, String, Float, DateTime, Date, ForeignKey, JSON
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
@@ -38,6 +38,9 @@ class Project(Base):
     scenario_results = relationship(
         "ScenarioResult", back_populates="project", cascade="all, delete-orphan"
     )
+    uploads = relationship(
+        "Upload", back_populates="project", cascade="all, delete-orphan"
+    )
 
 
 class MonthlyBill(Base):
@@ -53,6 +56,47 @@ class MonthlyBill(Base):
     tariff_name = Column(String)
 
     project = relationship("Project", back_populates="monthly_bills")
+
+
+class Upload(Base):
+    __tablename__ = "uploads"
+
+    id = Column(Integer, primary_key=True)
+    project_id = Column(Integer, ForeignKey("projects.id"), nullable=False)
+    filename = Column(String, nullable=False)
+    file_path = Column(String, nullable=False)       # MinIO object key
+    file_type = Column(String, nullable=False)       # pdf | image
+    # pending | processing | done | failed
+    status = Column(String, default="pending")
+    error_message = Column(String)
+    ocr_raw_json = Column(JSON)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    project = relationship("Project", back_populates="uploads")
+    bill_raw = relationship("BillRaw", back_populates="upload", uselist=False)
+
+
+class BillRaw(Base):
+    __tablename__ = "bills_raw"
+
+    id = Column(Integer, primary_key=True)
+    upload_id = Column(Integer, ForeignKey("uploads.id"), nullable=False)
+    project_id = Column(Integer, ForeignKey("projects.id"), nullable=False)
+    bill_period_start = Column(Date)
+    bill_period_end = Column(Date)
+    kwh = Column(Float)
+    total_cost = Column(Float)
+    peak_kw = Column(Float)
+    tariff_name = Column(String)
+    supplier = Column(String)
+    currency = Column(String, default="GBP")
+    confidence = Column(Float, default=0.0)
+    extraction_method = Column(String, default="pdfplumber")
+    # pending_review | approved | rejected
+    status = Column(String, default="pending_review")
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    upload = relationship("Upload", back_populates="bill_raw")
 
 
 class ScenarioResult(Base):

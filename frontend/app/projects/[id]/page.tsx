@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { Navbar } from '@/components/Navbar'
 import { EnergyChart } from '@/components/EnergyChart'
 import { ScenarioTable } from '@/components/ScenarioTable'
+import BillUploader from '@/components/BillUploader'
 import { api, ProjectDetail, ScenarioResult } from '@/lib/api'
 
 export default function ProjectPage({ params }: { params: { id: string } }) {
@@ -14,6 +15,7 @@ export default function ProjectPage({ params }: { params: { id: string } }) {
   const [project, setProject] = useState<ProjectDetail | null>(null)
   const [loading, setLoading] = useState(true)
   const [running, setRunning] = useState(false)
+  const [showUploader, setShowUploader] = useState(false)
 
   useEffect(() => {
     if (!localStorage.getItem('token')) {
@@ -26,6 +28,10 @@ export default function ProjectPage({ params }: { params: { id: string } }) {
       .catch(() => router.push('/dashboard'))
       .finally(() => setLoading(false))
   }, [projectId, router])
+
+  function refreshProject() {
+    api.projects.get(projectId).then(setProject).catch(() => {})
+  }
 
   async function rerunScenarios() {
     if (!project) return
@@ -79,6 +85,30 @@ export default function ProjectPage({ params }: { params: { id: string } }) {
           >
             {running ? 'Running…' : '↺ Rerun scenarios'}
           </button>
+        </div>
+
+        {/* Bill upload */}
+        <div className="bg-white border border-gray-200 rounded-2xl p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="font-semibold">Upload bills</h2>
+            <button
+              onClick={() => setShowUploader((v) => !v)}
+              className="text-sm text-green-600 hover:underline"
+            >
+              {showUploader ? 'Hide' : 'Show uploader'}
+            </button>
+          </div>
+          {showUploader && (
+            <BillUploader
+              projectId={projectId}
+              onBillApproved={refreshProject}
+            />
+          )}
+          {!showUploader && (
+            <p className="text-sm text-gray-400">
+              Upload PDF or image bills — fields are extracted automatically for your review.
+            </p>
+          )}
         </div>
 
         {/* Energy charts */}

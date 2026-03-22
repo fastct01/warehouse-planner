@@ -7,6 +7,13 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 1440
     ALGORITHM: str = "HS256"
 
+    REDIS_URL: str = "redis://localhost:6379"
+    MINIO_ENDPOINT: str = "localhost:9000"
+    MINIO_ACCESS_KEY: str = "minioadmin"
+    MINIO_SECRET_KEY: str = "minioadmin"
+    MINIO_BUCKET: str = "energy-bills"
+    OCR_SERVICE_URL: str = "http://localhost:8001"
+
     class Config:
         env_file = ".env"
 
