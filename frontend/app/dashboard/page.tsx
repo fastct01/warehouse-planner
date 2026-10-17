@@ -24,16 +24,12 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    if (!localStorage.getItem('token')) {
-      router.push('/login')
-      return
-    }
     api.projects
       .list()
       .then(setProjects)
-      .catch(() => router.push('/login'))
+      .catch(() => {})
       .finally(() => setLoading(false))
-  }, [router])
+  }, [])
 
   return (
     <div>

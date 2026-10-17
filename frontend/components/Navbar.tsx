@@ -1,15 +1,7 @@
 'use client'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
 
 export function Navbar() {
-  const router = useRouter()
-
-  function logout() {
-    localStorage.removeItem('token')
-    router.push('/login')
-  }
-
   return (
     <nav className="bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between">
       <Link href="/dashboard" className="text-lg font-bold text-green-700 tracking-tight">
@@ -25,9 +17,6 @@ export function Navbar() {
         >
           + New project
         </Link>
-        <button onClick={logout} className="text-sm text-gray-400 hover:text-gray-600">
-          Sign out
-        </button>
       </div>
     </nav>
   )

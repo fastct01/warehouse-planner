@@ -18,10 +18,6 @@ export default function ProjectPage({ params }: { params: { id: string } }) {
   const [showUploader, setShowUploader] = useState(false)
 
   useEffect(() => {
-    if (!localStorage.getItem('token')) {
-      router.push('/login')
-      return
-    }
     api.projects
       .get(projectId)
       .then(setProject)
